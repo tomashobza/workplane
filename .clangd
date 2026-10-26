@@ -1,0 +1,5 @@
+CompileFlags:
+  Add: [
+    "-I/opt/homebrew/include",          # Standard Homebrew include path
+    "-I/opt/homebrew/opt/raylib/include" # Direct Raylib symlink for Homebrew
+  ]
