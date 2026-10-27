@@ -16,14 +16,25 @@ float max(float a, float b) {
 }
 
 float coordX(float pos, Vector2 worldPos) {
-    int newPos = (pos + worldPos.x)*scaleCoef;
+    float newPos = (pos - worldPos.x)*scaleCoef;
     newPos += CENTER_X;
     return newPos;
 }
 
+float invCoordX(float pos, Vector2 worldPos) {
+    float newPos = (pos - CENTER_X)/scaleCoef + worldPos.x;
+    return newPos;
+}
+
+
 float coordY(float pos, Vector2 worldPos) {
-    int newPos = (pos + worldPos.y)*scaleCoef;
+    float newPos = (pos - worldPos.y)*scaleCoef;
     newPos += CENTER_Y;
+    return newPos;
+}
+
+float invCoordY(float pos, Vector2 worldPos) {
+    float newPos = (pos - CENTER_Y)/scaleCoef + worldPos.y;
     return newPos;
 }
 
@@ -53,11 +64,16 @@ int main(void) {
         bool mouseDown = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
 
         float scroll = GetMouseWheelMove();
-        scaleCoef = max(scaleCoef + scroll / 10.0, 0.1);
-        // if (scroll != 0) {
-        //     position.x = (position.x - mousePos.x) * scroll / 10.0 + position.x;
-        //     position.y = (position.y - mousePos.y) * scroll / 10.0 + position.y;
-        // }
+
+        // TODO: figure out how tf we can zoom to the mouse
+        if (scroll != 0) {
+            Vector2 beforeMouse = { invCoordX(mousePos.x, position), invCoordY(mousePos.y, position) };
+
+            scaleCoef = max(scaleCoef + scroll / 10.0, 0.1);
+
+            position.x = beforeMouse.x - (mousePos.x - CENTER_X) / scaleCoef;
+            position.y = beforeMouse.y - (mousePos.y - CENTER_Y) / scaleCoef;
+        }
 
         if (justMouseDown) {
             downPos.x = mousePos.x;
@@ -73,8 +89,8 @@ int main(void) {
         if (mouseDown) {
             xDelta = (mousePos.x - downPos.x) / scaleCoef;
             yDelta = (mousePos.y - downPos.y) / scaleCoef;
-            position.x = lastPos.x + xDelta;
-            position.y = lastPos.y + yDelta;
+            position.x = lastPos.x - xDelta;
+            position.y = lastPos.y - yDelta;
         }
 
         // Draw
@@ -96,7 +112,8 @@ int main(void) {
             // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // DrawText(TextFormat("Scale: (%0.1f)", scaleCoef), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // if (mouseDown) {
-                DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x - CENTER_X, mousePos.y - CENTER_Y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+                // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", invCoordX(mousePos.x, position), invCoordY(mousePos.y, position)), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+                DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", position.x, position.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // }
             // DrawText("Congrats! You created your first raylib window!", 200, 200, 20, LIGHTGRAY);
 
