@@ -13,6 +13,25 @@ float max(float a, float b) {
     return a > b ? a : b;
 }
 
+float coordX(float pos, Vector2 worldPos) {
+    int newPos = (pos + worldPos.x)*scale;
+    newPos += WINDOW_W / 2.0;
+    return newPos;
+}
+
+float coordY(float pos, Vector2 worldPos) {
+    int newPos = (pos + worldPos.y)*scale;
+    newPos += WINDOW_H / 2.0;
+    return newPos;
+}
+
+Vector2 coords(Vector2 pos, Vector2 worldPos) {
+    Vector2 newPos;
+    newPos.x = coordX(pos.x, worldPos);
+    newPos.y = coordY(pos.y, worldPos);
+    return newPos;
+}
+
 int main(void) {
     // Initialize the window size and title
     InitWindow(WINDOW_W, WINDOW_H, "workplane");
@@ -28,7 +47,7 @@ int main(void) {
         bool mouseDown = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
 
         float scroll = GetMouseWheelMove();
-        scale = max(scale + scroll / 10.0, 0);
+        scale = max(scale + scroll / 10.0, 0.1);
 
         if (justMouseDown) {
             downPos.x = mousePos.x;
@@ -53,9 +72,9 @@ int main(void) {
 
             ClearBackground(RAYWHITE);
             int rectsize = 50 * scale;
-            DrawRectangle((10 + position.x) * scale, (10 + position.y) * scale, rectsize, rectsize, PINK);
-            DrawRectangle((80 + position.x) * scale, (100 + position.y) * scale, rectsize, rectsize, PINK);
-            DrawRectangle((10 + position.x) * scale, (150 + position.y) * scale, rectsize, rectsize, PINK);
+            DrawRectangle((coordX(0, position)), (coordY(0, position)), rectsize, rectsize, PINK);
+            DrawRectangle((coordX(-50, position)), (coordY(-50, position)), rectsize, rectsize, PINK);
+            DrawRectangle((coordX(50, position)), (coordY(50, position)), rectsize, rectsize, PINK);
             // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             DrawText(TextFormat("Scale: (%0.1f)", scale), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // if (mouseDown) {
