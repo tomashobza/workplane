@@ -42,8 +42,8 @@ int main(void) {
         float yDelta = 0;
 
         if (mouseDown) {
-            xDelta = mousePos.x - downPos.x;
-            yDelta = mousePos.y - downPos.y;
+            xDelta = (mousePos.x - downPos.x) / scale;
+            yDelta = (mousePos.y - downPos.y) / scale;
             position.x = lastPos.x + xDelta;
             position.y = lastPos.y + yDelta;
         }
@@ -53,9 +53,9 @@ int main(void) {
 
             ClearBackground(RAYWHITE);
             int rectsize = 50 * scale;
-            DrawRectangle(10 + position.x, 10 + position.y, rectsize, rectsize, PINK);
-            DrawRectangle(80 + position.x, 100 + position.y, rectsize, rectsize, PINK);
-            DrawRectangle(10 + position.x, 150 + position.y, rectsize, rectsize, PINK);
+            DrawRectangle((10 + position.x) * scale, (10 + position.y) * scale, rectsize, rectsize, PINK);
+            DrawRectangle((80 + position.x) * scale, (100 + position.y) * scale, rectsize, rectsize, PINK);
+            DrawRectangle((10 + position.x) * scale, (150 + position.y) * scale, rectsize, rectsize, PINK);
             // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             DrawText(TextFormat("Scale: (%0.1f)", scale), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // if (mouseDown) {
