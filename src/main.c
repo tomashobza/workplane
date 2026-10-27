@@ -7,6 +7,12 @@ Vector2 position = {0, 0};
 Vector2 lastPos = {0, 0};
 Vector2 downPos = {0, 0};
 
+float scale = 1.0;
+
+float max(float a, float b) {
+    return a > b ? a : b;
+}
+
 int main(void) {
     // Initialize the window size and title
     InitWindow(WINDOW_W, WINDOW_H, "workplane");
@@ -20,6 +26,9 @@ int main(void) {
         Vector2 mousePos = GetMousePosition();
         bool justMouseDown = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
         bool mouseDown = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+
+        float scroll = GetMouseWheelMove();
+        scale = max(scale + scroll / 10.0, 0);
 
         if (justMouseDown) {
             downPos.x = mousePos.x;
@@ -43,10 +52,12 @@ int main(void) {
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-            DrawRectangle(10 + position.x, 10 + position.y, 50, 50, PINK);
-            DrawRectangle(80 + position.x, 100 + position.y, 50, 50, PINK);
-            DrawRectangle(10 + position.x, 150 + position.y, 50, 50, PINK);
+            int rectsize = 50 * scale;
+            DrawRectangle(10 + position.x, 10 + position.y, rectsize, rectsize, PINK);
+            DrawRectangle(80 + position.x, 100 + position.y, rectsize, rectsize, PINK);
+            DrawRectangle(10 + position.x, 150 + position.y, rectsize, rectsize, PINK);
             // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+            DrawText(TextFormat("Scale: (%0.1f)", scale), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // if (mouseDown) {
                 // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", position.x, position.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // }
