@@ -4,6 +4,7 @@ const int WINDOW_W = 800;
 const int WINDOW_H = 450;
 const float CENTER_X = WINDOW_W / 2.0;
 const float CENTER_Y = WINDOW_H / 2.0;
+const Vector2 CENTER = {CENTER_X, CENTER_Y};
 
 Vector2 position = {0, 0};
 Vector2 lastPos = {0, 0};
@@ -15,38 +16,33 @@ float max(float a, float b) {
     return a > b ? a : b;
 }
 
-float coordX(float pos, Vector2 worldPos) {
-    float newPos = (pos - worldPos.x)*scaleCoef;
-    newPos += CENTER_X;
-    return newPos;
+Vector2 inv(Vector2 v) {
+    return (Vector2){
+        -v.x,
+        -v.y
+    };
 }
 
-float invCoordX(float pos, Vector2 worldPos) {
-    float newPos = (pos - CENTER_X)/scaleCoef + worldPos.x;
-    return newPos;
+Vector2 trans(Vector2 v1, Vector2 v2) {
+    return (Vector2){
+        v1.x+v2.x,
+        v1.y+v2.y
+    };
 }
 
-
-float coordY(float pos, Vector2 worldPos) {
-    float newPos = (pos - worldPos.y)*scaleCoef;
-    newPos += CENTER_Y;
-    return newPos;
+Vector2 scale(Vector2 v, float scaleCoef) {
+    return (Vector2){
+        v.x*scaleCoef,
+        v.y*scaleCoef
+    };
 }
 
-float invCoordY(float pos, Vector2 worldPos) {
-    float newPos = (pos - CENTER_Y)/scaleCoef + worldPos.y;
-    return newPos;
+Vector2 world2scene(Vector2 v) {
+    return trans(scale(trans(v, inv(position)), scaleCoef), CENTER);
 }
 
-Vector2 coords(Vector2 pos, Vector2 worldPos) {
-    Vector2 newPos;
-    newPos.x = coordX(pos.x, worldPos);
-    newPos.y = coordY(pos.y, worldPos);
-    return newPos;
-}
-
-float scale(float w) {
-    return scaleCoef*w;
+Vector2 scene2world(Vector2 v) {
+    return trans(scale(trans(v, inv(CENTER)), 1.0 / scaleCoef), position);
 }
 
 int main(void) {
@@ -67,12 +63,13 @@ int main(void) {
 
         // TODO: figure out how tf we can zoom to the mouse
         if (scroll != 0) {
-            Vector2 beforeMouse = { invCoordX(mousePos.x, position), invCoordY(mousePos.y, position) };
+            Vector2 beforeMouseWrld = scene2world(mousePos);
 
             scaleCoef = max(scaleCoef + scroll / 10.0, 0.1);
 
-            position.x = beforeMouse.x - (mousePos.x - CENTER_X) / scaleCoef;
-            position.y = beforeMouse.y - (mousePos.y - CENTER_Y) / scaleCoef;
+            Vector2 afterMouseWrld = scene2world(mousePos);
+
+            position = trans(trans(beforeMouseWrld, inv(afterMouseWrld)), position);
         }
 
         if (justMouseDown) {
@@ -98,22 +95,38 @@ int main(void) {
 
             ClearBackground(RAYWHITE);
 
-            for (int i=-10; i<=10; i++) {
-                for (int j=-10; j<=10; j++) {
-                    DrawLine(coordX(i*10, position), coordY(j*10, position), coordX(i*10, position), coordY(j*10 + 10, position), RED);
-                    DrawLine(coordX(i*10, position), coordY(j*10, position), coordX(i*10 + 10, position), coordY(j*10, position), RED);
+            if (scaleCoef > 2) {
+                for (int i=0; i<=100; i++) {
+                    for (int j=0; j<=100; j++) {
+                        Vector2 pos = world2scene((Vector2){ i*10, j*10 });
+                        Vector2 pos2 = world2scene((Vector2){ i*10 + 10, j*10 + 10 });
+                        DrawLine(pos.x, pos.y, pos.x, pos2.y, RED);
+                        DrawLine(pos.x, pos.y, pos2.x, pos.y, RED);
+                    }
                 }
             }
 
-            int rectsize = scale(50);
-            DrawRectangle((coordX(0, position)), (coordY(0, position)), rectsize, rectsize, PINK);
-            DrawRectangle((coordX(-50, position)), (coordY(-50, position)), rectsize, rectsize, PINK);
-            DrawRectangle((coordX(50, position)), (coordY(50, position)), rectsize, rectsize, PINK);
+            Vector2 zero = world2scene((Vector2){ 0, 0 });
+            DrawLine(zero.x, 0, zero.x, WINDOW_H, RED);
+            DrawLine(0, zero.y, WINDOW_W, zero.y, RED);
+            DrawText(TextFormat("%0.1f, %0.1f", position.x, position.y), zero.x + 5, zero.y + 5, 12, RED);
+
+            Vector2 pointerWrld = scene2world(mousePos);
+            DrawLine(mousePos.x, 0, mousePos.x, WINDOW_H, BLUE);
+            DrawLine(0, mousePos.y, WINDOW_W, mousePos.y, BLUE);
+            DrawText(TextFormat("%0.1f, %0.1f", pointerWrld.x, pointerWrld.y), mousePos.x + 5, mousePos.y + 5, 12, BLUE);
+
+            int rectsize = 50 * scaleCoef;
+            // DrawRectangle((coordX(0, position)), (coordY(0, position)), rectsize, rectsize, PINK);
+            // DrawRectangle((coordX(-50, position)), (coordY(-50, position)), rectsize, rectsize, PINK);
+            // DrawRectangle((coordX(50, position)), (coordY(50, position)), rectsize, rectsize, PINK);
+            Vector2 rectPos = world2scene((Vector2){ 50, 50 });
+            DrawRectangle(rectPos.x, rectPos.y, rectsize, rectsize, PINK);
             // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
-            // DrawText(TextFormat("Scale: (%0.1f)", scaleCoef), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+            DrawText(TextFormat("Scale: (%0.1f)", scaleCoef), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // if (mouseDown) {
                 // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", invCoordX(mousePos.x, position), invCoordY(mousePos.y, position)), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
-                DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", position.x, position.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+                // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", position.x, position.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // }
             // DrawText("Congrats! You created your first raylib window!", 200, 200, 20, LIGHTGRAY);
 
