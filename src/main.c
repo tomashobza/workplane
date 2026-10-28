@@ -95,6 +95,24 @@ int main(void) {
 
             ClearBackground(RAYWHITE);
 
+            int rectsize = 50 * scaleCoef;
+            // DrawRectangle((coordX(0, position)), (coordY(0, position)), rectsize, rectsize, PINK);
+            // DrawRectangle((coordX(-50, position)), (coordY(-50, position)), rectsize, rectsize, PINK);
+            // DrawRectangle((coordX(50, position)), (coordY(50, position)), rectsize, rectsize, PINK);
+            Vector2 rectPos = world2scene((Vector2){ 0, 0 });
+            Vector2 rectPos2 = world2scene((Vector2){ 50, 50 });
+            Vector2 rectPos3 = world2scene((Vector2){ -50, -50 });
+            DrawRectangle(rectPos.x, rectPos.y, rectsize, rectsize, PINK);
+            DrawRectangle(rectPos2.x, rectPos2.y, rectsize, rectsize, PINK);
+            DrawRectangle(rectPos3.x, rectPos3.y, rectsize, rectsize, PINK);
+            // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+            DrawText(TextFormat("Scale: (%0.1f)", scaleCoef), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+            // if (mouseDown) {
+                // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", invCoordX(mousePos.x, position), invCoordY(mousePos.y, position)), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+                // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", position.x, position.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+            // }
+            // DrawText("Congrats! You created your first raylib window!", 200, 200, 20, LIGHTGRAY);
+
             if (scaleCoef > 2) {
                 for (int i=0; i<=100; i++) {
                     for (int j=0; j<=100; j++) {
@@ -115,20 +133,6 @@ int main(void) {
             DrawLine(mousePos.x, 0, mousePos.x, WINDOW_H, BLUE);
             DrawLine(0, mousePos.y, WINDOW_W, mousePos.y, BLUE);
             DrawText(TextFormat("%0.1f, %0.1f", pointerWrld.x, pointerWrld.y), mousePos.x + 5, mousePos.y + 5, 12, BLUE);
-
-            int rectsize = 50 * scaleCoef;
-            // DrawRectangle((coordX(0, position)), (coordY(0, position)), rectsize, rectsize, PINK);
-            // DrawRectangle((coordX(-50, position)), (coordY(-50, position)), rectsize, rectsize, PINK);
-            // DrawRectangle((coordX(50, position)), (coordY(50, position)), rectsize, rectsize, PINK);
-            Vector2 rectPos = world2scene((Vector2){ 50, 50 });
-            DrawRectangle(rectPos.x, rectPos.y, rectsize, rectsize, PINK);
-            // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
-            DrawText(TextFormat("Scale: (%0.1f)", scaleCoef), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
-            // if (mouseDown) {
-                // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", invCoordX(mousePos.x, position), invCoordY(mousePos.y, position)), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
-                // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", position.x, position.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
-            // }
-            // DrawText("Congrats! You created your first raylib window!", 200, 200, 20, LIGHTGRAY);
 
             DrawFPS(10, 10);
 
