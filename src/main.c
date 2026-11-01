@@ -41,6 +41,10 @@ Vector2 world2scene(Vector2 v) {
     return trans(scale(trans(v, inv(position)), scaleCoef), CENTER);
 }
 
+float world2scene_scale(float v) {
+    return v * scaleCoef;
+}
+
 Vector2 scene2world(Vector2 v) {
     return trans(scale(trans(v, inv(CENTER)), 1.0 / scaleCoef), position);
 }
@@ -95,16 +99,16 @@ int main(void) {
 
             ClearBackground(RAYWHITE);
 
-            int rectsize = 50 * scaleCoef;
+            int rectsize = 50;
             // DrawRectangle((coordX(0, position)), (coordY(0, position)), rectsize, rectsize, PINK);
             // DrawRectangle((coordX(-50, position)), (coordY(-50, position)), rectsize, rectsize, PINK);
             // DrawRectangle((coordX(50, position)), (coordY(50, position)), rectsize, rectsize, PINK);
             Vector2 rectPos = world2scene((Vector2){ 0, 0 });
             Vector2 rectPos2 = world2scene((Vector2){ 50, 50 });
             Vector2 rectPos3 = world2scene((Vector2){ -50, -50 });
-            DrawRectangle(rectPos.x, rectPos.y, rectsize, rectsize, PINK);
-            DrawRectangle(rectPos2.x, rectPos2.y, rectsize, rectsize, PINK);
-            DrawRectangle(rectPos3.x, rectPos3.y, rectsize, rectsize, PINK);
+            DrawRectangle(rectPos.x, rectPos.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
+            DrawRectangle(rectPos2.x, rectPos2.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
+            DrawRectangle(rectPos3.x, rectPos3.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
             // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             DrawText(TextFormat("Scale: (%0.1f)", scaleCoef), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // if (mouseDown) {
