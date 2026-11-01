@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "globals.h"
 
 const int WINDOW_W = 800;
 const int WINDOW_H = 450;
@@ -6,11 +7,7 @@ const float CENTER_X = WINDOW_W / 2.0;
 const float CENTER_Y = WINDOW_H / 2.0;
 const Vector2 CENTER = {CENTER_X, CENTER_Y};
 
-Vector2 position = {0, 0};
-Vector2 lastPos = {0, 0};
-Vector2 downPos = {0, 0};
 
-float scaleCoef = 1.0;
 
 float max(float a, float b) {
     return a > b ? a : b;
@@ -55,6 +52,9 @@ int main(void) {
 
     // Target 60 frames per second
     SetTargetFPS(60);
+
+    Vector2 lastPos = {0, 0};
+    Vector2 downPos = {0, 0};
 
     // Main game loop
     while (!WindowShouldClose()) { // Detect window close button or ESC key
