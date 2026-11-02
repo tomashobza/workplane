@@ -1,50 +1,7 @@
 #include "raylib.h"
 #include "globals.h"
-
-const int WINDOW_W = 800;
-const int WINDOW_H = 450;
-const float CENTER_X = WINDOW_W / 2.0;
-const float CENTER_Y = WINDOW_H / 2.0;
-const Vector2 CENTER = {CENTER_X, CENTER_Y};
-
-
-
-float max(float a, float b) {
-    return a > b ? a : b;
-}
-
-Vector2 inv(Vector2 v) {
-    return (Vector2){
-        -v.x,
-        -v.y
-    };
-}
-
-Vector2 trans(Vector2 v1, Vector2 v2) {
-    return (Vector2){
-        v1.x+v2.x,
-        v1.y+v2.y
-    };
-}
-
-Vector2 scale(Vector2 v, float scaleCoef) {
-    return (Vector2){
-        v.x*scaleCoef,
-        v.y*scaleCoef
-    };
-}
-
-Vector2 world2scene(Vector2 v) {
-    return trans(scale(trans(v, inv(position)), scaleCoef), CENTER);
-}
-
-float world2scene_scale(float v) {
-    return v * scaleCoef;
-}
-
-Vector2 scene2world(Vector2 v) {
-    return trans(scale(trans(v, inv(CENTER)), 1.0 / scaleCoef), position);
-}
+#include "utils.h"
+#include "window.h"
 
 int main(void) {
     // Initialize the window size and title
@@ -69,29 +26,41 @@ int main(void) {
         if (scroll != 0) {
             Vector2 beforeMouseWrld = scene2world(mousePos);
 
-            scaleCoef = max(scaleCoef + scroll / 10.0, 0.1);
+            wv.scale = max(wv.scale + scroll / 10.0, 0.1);
 
             Vector2 afterMouseWrld = scene2world(mousePos);
 
-            position = trans(trans(beforeMouseWrld, inv(afterMouseWrld)), position);
+            wv.position = trans(trans(beforeMouseWrld, inv(afterMouseWrld)), wv.position);
         }
 
+        Window w;
+        w.index = 0;
+        w.name = "Pokus okno";
+        w.shape = (Rectangle){ 30, 20, 100, 100 };
+        Rectangle bb = getWindowBoundingBox(w);
+
         if (justMouseDown) {
+            if (isInside(mousePos, bb)) {
+                selectedWindow = w.index;
+            } else {
+                selectedWindow = -1;
+            }
+
             downPos.x = mousePos.x;
             downPos.y = mousePos.y;
 
             // save pos
-            lastPos = position;
+            lastPos = wv.position;
         }
 
         float xDelta = 0;
         float yDelta = 0;
 
         if (mouseDown) {
-            xDelta = (mousePos.x - downPos.x) / scaleCoef;
-            yDelta = (mousePos.y - downPos.y) / scaleCoef;
-            position.x = lastPos.x - xDelta;
-            position.y = lastPos.y - yDelta;
+            xDelta = (mousePos.x - downPos.x) / wv.scale;
+            yDelta = (mousePos.y - downPos.y) / wv.scale;
+            wv.position.x = lastPos.x - xDelta;
+            wv.position.y = lastPos.y - yDelta;
         }
 
         // Draw
@@ -103,35 +72,37 @@ int main(void) {
             // DrawRectangle((coordX(0, position)), (coordY(0, position)), rectsize, rectsize, PINK);
             // DrawRectangle((coordX(-50, position)), (coordY(-50, position)), rectsize, rectsize, PINK);
             // DrawRectangle((coordX(50, position)), (coordY(50, position)), rectsize, rectsize, PINK);
-            Vector2 rectPos = world2scene((Vector2){ 0, 0 });
-            Vector2 rectPos2 = world2scene((Vector2){ 50, 50 });
-            Vector2 rectPos3 = world2scene((Vector2){ -50, -50 });
-            DrawRectangle(rectPos.x, rectPos.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
-            DrawRectangle(rectPos2.x, rectPos2.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
-            DrawRectangle(rectPos3.x, rectPos3.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
+            // Vector2 rectPos = world2scene_vec2((Vector2){ 0, 0 });
+            // Vector2 rectPos2 = world2scene_vec2((Vector2){ 50, 50 });
+            // Vector2 rectPos3 = world2scene_vec2((Vector2){ -50, -50 });
+            // DrawRectangle(rectPos.x, rectPos.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
+            // DrawRectangle(rectPos2.x, rectPos2.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
+            // DrawRectangle(rectPos3.x, rectPos3.y, world2scene_scale(rectsize), world2scene_scale(rectsize), PINK);
+            DrawWindow(w);
+            // DrawRectangleLinesEx((Rectangle){ rectPos.x, rectPos.y, world2scene_scale(rectsize), world2scene_scale(rectsize) }, world2scene_scale(2.0), BLUE);
             // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", mousePos.x, mousePos.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
-            DrawText(TextFormat("Scale: (%0.1f)", scaleCoef), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
+            DrawText(TextFormat("Scale: (%0.1f)", wv.scale), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // if (mouseDown) {
                 // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", invCoordX(mousePos.x, position), invCoordY(mousePos.y, position)), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
                 // DrawText(TextFormat("Vector2 Pos: (%0.1f, %0.1f)", position.x, position.y), WINDOW_W - 280, WINDOW_H - 30, 20, DARKGRAY);
             // }
             // DrawText("Congrats! You created your first raylib window!", 200, 200, 20, LIGHTGRAY);
 
-            if (scaleCoef > 2) {
-                for (int i=0; i<=100; i++) {
-                    for (int j=0; j<=100; j++) {
-                        Vector2 pos = world2scene((Vector2){ i*10, j*10 });
-                        Vector2 pos2 = world2scene((Vector2){ i*10 + 10, j*10 + 10 });
-                        DrawLine(pos.x, pos.y, pos.x, pos2.y, RED);
-                        DrawLine(pos.x, pos.y, pos2.x, pos.y, RED);
-                    }
-                }
-            }
+            // if (wv.scale > 2) {
+            //     for (int i=0; i<=100; i++) {
+            //         for (int j=0; j<=100; j++) {
+            //             Vector2 pos = world2scene_vec2((Vector2){ i*10, j*10 });
+            //             Vector2 pos2 = world2scene_vec2((Vector2){ i*10 + 10, j*10 + 10 });
+            //             DrawLine(pos.x, pos.y, pos.x, pos2.y, RED);
+            //             DrawLine(pos.x, pos.y, pos2.x, pos.y, RED);
+            //         }
+            //     }
+            // }
 
-            Vector2 zero = world2scene((Vector2){ 0, 0 });
+            Vector2 zero = world2scene_vec2((Vector2){ 0, 0 });
             DrawLine(zero.x, 0, zero.x, WINDOW_H, RED);
             DrawLine(0, zero.y, WINDOW_W, zero.y, RED);
-            DrawText(TextFormat("%0.1f, %0.1f", position.x, position.y), zero.x + 5, zero.y + 5, 12, RED);
+            DrawText(TextFormat("%0.1f, %0.1f", wv.position.x, wv.position.y), zero.x + 5, zero.y + 5, 12, RED);
 
             Vector2 pointerWrld = scene2world(mousePos);
             DrawLine(mousePos.x, 0, mousePos.x, WINDOW_H, BLUE);
